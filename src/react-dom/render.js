@@ -1,4 +1,4 @@
-import { Component } from '../react';
+// import { Component } from '../react';
 import diffNode from './diff';
 
 function render(vnode, container) {
@@ -9,31 +9,31 @@ function render(vnode, container) {
   }
 }
 
-function _render(vnode) {
-  // console.log(vnode)
-  if (vnode === undefined || vnode === null || typeof vnode === 'boolean') {
-    vnode = '';
-  }
-  if (typeof vnode === 'string' || typeof vnode === 'number') {
-    return document.createTextNode(vnode);
-  }
+// function _render(vnode) {
+//   // console.log(vnode)
+//   if (vnode === undefined || vnode === null || typeof vnode === 'boolean') {
+//     vnode = '';
+//   }
+//   if (typeof vnode === 'string' || typeof vnode === 'number') {
+//     return document.createTextNode(vnode);
+//   }
 
-  let { tag, attrs, children } = vnode;
-  attrs = attrs || {};
+//   let { tag, attrs, children } = vnode;
+//   attrs = attrs || {};
 
-  // 组件渲染
-  if (typeof tag === 'function') {
-    const component = createComponent(tag, attrs);
-    setComponentProps(component, attrs);
-    return component.base;
-  }
+//   // 组件渲染
+//   if (typeof tag === 'function') {
+//     const component = createComponent(tag, attrs);
+//     setComponentProps(component, attrs);
+//     return component.base;
+//   }
   
-  // 普通元素渲染
-  const dom = document.createElement(tag);
-  Object.entries(attrs).forEach(([key, val]) => setAttribute(dom, key, val));
-  children.forEach(child => render(child, dom));
-  return dom;
-}
+//   // 普通元素渲染
+//   const dom = document.createElement(tag);
+//   Object.entries(attrs).forEach(([key, val]) => setAttribute(dom, key, val));
+//   children.forEach(child => render(child, dom));
+//   return dom;
+// }
 
 // 为节点添加属性
 function setAttribute(dom, name, value) {
@@ -59,7 +59,7 @@ function setAttribute(dom, name, value) {
 // 创建组件
 function createComponent(component, props) {
   let inst;
-
+  // console.log(component, props)
   if (component.prototype && component.prototype.defaultProps) {
     Object.assign(props, component.prototype.defaultProps);
   }
@@ -69,8 +69,8 @@ function createComponent(component, props) {
   } else {
     inst = new component(props);
     inst.constructor = component;
-    inst.render = () => {
-      return inst.constructor(props);
+    inst.render = (params) => {
+      return inst.constructor(params || props);
     }
   }
 
@@ -78,6 +78,7 @@ function createComponent(component, props) {
 }
 
 function setComponentProps(component, props) {
+  // console.log(component, props)
   if (!component.base) {
     if (component.componentWillMount) {
       component.componentWillMount()
@@ -85,18 +86,23 @@ function setComponentProps(component, props) {
   } else if (component.componentWillReceiveProps) {
     component.componentWillReceiveProps(props);
   }
+  
+  // console.log('renderC', component, component.render())
+  component.props = props;
 
   renderComponent(component);
 }
 
 function renderComponent(component) {
-  const render = component.render();
+  // console.log(component)
+  const render = component.render(component.props);
 
   if (component.base && component.componentWillUpdate) {
     component.componentWillUpdate();
   }
 
   // const base = _render(render);
+  // console.log(render)
   const base = diffNode(component.base, render);
 
   if (!component.base) {

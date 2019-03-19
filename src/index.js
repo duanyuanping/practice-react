@@ -2,22 +2,25 @@ import React from './react';
 import ReactDOM from './react-dom';
 
 function Show({ num }) {
+  // console.log(num)
     return <h1>{num}</h1>
 }
 
 class App extends React.Component {
 
   constructor() {
-      super();
-      this.state = {
-          num: 0
-      }
+    super();
+    this.state = {
+      num: 0
     }
+  }
 
   hello() {
-      this.setState({
-        num: this.state.num + 1
-      })
+
+    // console.log(this.state.num)
+    this.setState({
+      num: this.state.num + 1
+    })
   }
 
   componentDidMount() {
@@ -30,11 +33,14 @@ class App extends React.Component {
   }
 
   render() {
-      return (
-          <div className="App" onClick={() => this.hello()}>
-              <Show num={this.state.num}></Show>
-          </div>
-      );
+    const num = this.state.num
+    // console.log(num)
+    return (
+      <div className="App" onClick={() => this.hello()}>
+        <Show num={num}></Show>
+        {/* <h1>{num}</h1> */}
+      </div>
+    );
   }
 }
 

@@ -1,6 +1,7 @@
 import render from './render';
 
 function diffNode(dom, vnode) {
+  // console.log(dom, vnode)
   let out;
   // 文本节点
   if (vnode === null || vnode === undefined || typeof vnode === 'boolean') {
@@ -24,13 +25,14 @@ function diffNode(dom, vnode) {
   }
 
   let { tag, attrs } = vnode;
-  attrs = attrs || {};
+  vnode.attrs = attrs || {};
+  // console.log(vnode)
 
   // 组件节点
   if (typeof tag === 'function') {
     return diffComponent(dom, vnode);
   }
-
+  
   // 普通 html 节点类型
   if (!dom || !isSameNodeType(dom, vnode)) {
     out = document.createElement(tag);
@@ -110,6 +112,7 @@ function diffChildren(dom, vChildren) {
 } 
 
 function diffComponent(dom, vnode) {
+  // console.log(dom, vnode)
   let component = dom && dom._component;
   let oldDom = dom;
   if (component && component.constructor === vnode.tag) {

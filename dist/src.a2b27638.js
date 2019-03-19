@@ -117,6 +117,10 @@ var _default = function _default(tag, attrs) {
     children[_key - 2] = arguments[_key];
   }
 
+  // if (typeof tag.props === 'object') {
+  //   Object.entries(tag.props).forEach(item => attrs[item[0]] = item[1])
+  // }
+  // console.log(tag, attrs, children)
   return {
     tag: tag,
     attrs: attrs,
@@ -146,6 +150,7 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function diffNode(dom, vnode) {
+  // console.log(dom, vnode)
   var out; // 文本节点
 
   if (vnode === null || vnode === undefined || typeof vnode === 'boolean') {
@@ -175,7 +180,8 @@ function diffNode(dom, vnode) {
   var _vnode = vnode,
       tag = _vnode.tag,
       attrs = _vnode.attrs;
-  attrs = attrs || {}; // 组件节点
+  vnode.attrs = attrs || {}; // console.log(vnode)
+  // 组件节点
 
   if (typeof tag === 'function') {
     return diffComponent(dom, vnode);
@@ -258,6 +264,7 @@ function diffChildren(dom, vChildren) {
 }
 
 function diffComponent(dom, vnode) {
+  // console.log(dom, vnode)
   var component = dom && dom._component;
   var oldDom = dom;
 
@@ -345,8 +352,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _react = require("../react");
-
 var _diff = _interopRequireDefault(require("./diff"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -359,60 +364,45 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function _render2(vnode, container) {
+function _render(vnode, container) {
   // container.appendChild(_render(vnode));
   var ret = (0, _diff.default)(null, vnode);
 
   if (container && ret.parentNode !== container) {
     container.appendChild(ret);
   }
-}
-
-function _render(vnode) {
-  // console.log(vnode)
-  if (vnode === undefined || vnode === null || typeof vnode === 'boolean') {
-    vnode = '';
-  }
-
-  if (typeof vnode === 'string' || typeof vnode === 'number') {
-    return document.createTextNode(vnode);
-  }
-
-  var _vnode = vnode,
-      tag = _vnode.tag,
-      attrs = _vnode.attrs,
-      children = _vnode.children;
-  attrs = attrs || {}; // 组件渲染
-
-  if (typeof tag === 'function') {
-    var component = createComponent(tag, attrs);
-    setComponentProps(component, attrs);
-    return component.base;
-  } // 普通元素渲染
-
-
-  var dom = document.createElement(tag);
-  Object.entries(attrs).forEach(function (_ref) {
-    var _ref2 = _slicedToArray(_ref, 2),
-        key = _ref2[0],
-        val = _ref2[1];
-
-    return setAttribute(dom, key, val);
-  });
-  children.forEach(function (child) {
-    return _render2(child, dom);
-  });
-  return dom;
-} // 为节点添加属性
+} // function _render(vnode) {
+//   // console.log(vnode)
+//   if (vnode === undefined || vnode === null || typeof vnode === 'boolean') {
+//     vnode = '';
+//   }
+//   if (typeof vnode === 'string' || typeof vnode === 'number') {
+//     return document.createTextNode(vnode);
+//   }
+//   let { tag, attrs, children } = vnode;
+//   attrs = attrs || {};
+//   // 组件渲染
+//   if (typeof tag === 'function') {
+//     const component = createComponent(tag, attrs);
+//     setComponentProps(component, attrs);
+//     return component.base;
+//   }
+//   // 普通元素渲染
+//   const dom = document.createElement(tag);
+//   Object.entries(attrs).forEach(([key, val]) => setAttribute(dom, key, val));
+//   children.forEach(child => render(child, dom));
+//   return dom;
+// }
+// 为节点添加属性
 
 
 function setAttribute(dom, name, value) {
   // 添加样式
   if (name === 'style') {
-    return Object.entries(value).forEach(function (_ref3) {
-      var _ref4 = _slicedToArray(_ref3, 2),
-          key = _ref4[0],
-          val = _ref4[1];
+    return Object.entries(value).forEach(function (_ref) {
+      var _ref2 = _slicedToArray(_ref, 2),
+          key = _ref2[0],
+          val = _ref2[1];
 
       return dom.style[key] = typeof val === 'number' ? "".concat(val, "px") : val;
     });
@@ -434,7 +424,7 @@ function setAttribute(dom, name, value) {
 
 
 function createComponent(component, props) {
-  var inst;
+  var inst; // console.log(component, props)
 
   if (component.prototype && component.prototype.defaultProps) {
     Object.assign(props, component.prototype.defaultProps);
@@ -446,8 +436,8 @@ function createComponent(component, props) {
     inst = new component(props);
     inst.constructor = component;
 
-    inst.render = function () {
-      return inst.constructor(props);
+    inst.render = function (params) {
+      return inst.constructor(params || props);
     };
   }
 
@@ -455,23 +445,28 @@ function createComponent(component, props) {
 }
 
 function setComponentProps(component, props) {
+  // console.log(component, props)
   if (!component.base) {
     if (component.componentWillMount) {
       component.componentWillMount();
     }
   } else if (component.componentWillReceiveProps) {
     component.componentWillReceiveProps(props);
-  }
+  } // console.log('renderC', component, component.render())
 
+
+  component.props = props;
   renderComponent(component);
 }
 
 function renderComponent(component) {
-  var render = component.render();
+  // console.log(component)
+  var render = component.render(component.props);
 
   if (component.base && component.componentWillUpdate) {
     component.componentWillUpdate();
   } // const base = _render(render);
+  // console.log(render)
 
 
   var base = (0, _diff.default)(component.base, render);
@@ -494,7 +489,7 @@ function renderComponent(component) {
 var _default = {
   render: function render(vnode, container) {
     container.innerHTML = '';
-    return _render2(vnode, container);
+    return _render(vnode, container);
   },
   renderComponent: renderComponent,
   setAttribute: setAttribute,
@@ -502,7 +497,7 @@ var _default = {
   createComponent: createComponent
 };
 exports.default = _default;
-},{"../react":"src/react/index.js","./diff":"src/react-dom/diff.js"}],"src/react-dom/index.js":[function(require,module,exports) {
+},{"./diff":"src/react-dom/diff.js"}],"src/react-dom/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -587,11 +582,13 @@ function flush() {
   } // 渲染每一个组件
 
 
-  var component;
+  var component; // console.log(renderQueue)
 
   while (component = renderQueue.shift()) {
+    // console.log(component.state)
     _reactDom.default.renderComponent(component);
-  }
+  } // console.log(renderQueue)
+
 }
 
 var Component =
@@ -666,6 +663,7 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function Show(_ref) {
   var num = _ref.num;
+  // console.log(num)
   return _react.default.createElement("h1", null, num);
 }
 
@@ -689,6 +687,7 @@ function (_React$Component) {
   _createClass(App, [{
     key: "hello",
     value: function hello() {
+      // console.log(this.state.num)
       this.setState({
         num: this.state.num + 1
       });
@@ -708,13 +707,15 @@ function (_React$Component) {
     value: function render() {
       var _this2 = this;
 
+      var num = this.state.num; // console.log(num)
+
       return _react.default.createElement("div", {
         className: "App",
         onClick: function onClick() {
           return _this2.hello();
         }
       }, _react.default.createElement(Show, {
-        num: this.state.num
+        num: num
       }));
     }
   }]);
@@ -750,7 +751,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55695" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51719" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

@@ -27,7 +27,6 @@ function flush() {
 
   while (item = setStateQueue.shift()) {
     let { stateChange, component, callback } = item;
-
     if (!component.prevState) {
       component.prevState = Object.assign({}, component.state);
     }
@@ -45,9 +44,12 @@ function flush() {
 
   // 渲染每一个组件
   let component;
+  // console.log(renderQueue)
   while( component = renderQueue.shift() ) {
+    // console.log(component.state)
     ReactDom.renderComponent( component );
   }
+  // console.log(renderQueue)
 }
 
 class Component {
