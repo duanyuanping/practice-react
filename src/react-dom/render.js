@@ -69,8 +69,8 @@ function createComponent(component, props) {
   } else {
     inst = new component(props);
     inst.constructor = component;
-    inst.render = (params) => {
-      return inst.constructor(params || props);
+    inst.render = () => {
+      return inst.constructor(inst.props || props);
     }
   }
 
@@ -95,7 +95,7 @@ function setComponentProps(component, props) {
 
 function renderComponent(component) {
   // console.log(component)
-  const render = component.render(component.props);
+  const render = component.render();
 
   if (component.base && component.componentWillUpdate) {
     component.componentWillUpdate();

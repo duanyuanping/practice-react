@@ -436,8 +436,8 @@ function createComponent(component, props) {
     inst = new component(props);
     inst.constructor = component;
 
-    inst.render = function (params) {
-      return inst.constructor(params || props);
+    inst.render = function () {
+      return inst.constructor(inst.props || props);
     };
   }
 
@@ -461,7 +461,7 @@ function setComponentProps(component, props) {
 
 function renderComponent(component) {
   // console.log(component)
-  var render = component.render(component.props);
+  var render = component.render();
 
   if (component.base && component.componentWillUpdate) {
     component.componentWillUpdate();
